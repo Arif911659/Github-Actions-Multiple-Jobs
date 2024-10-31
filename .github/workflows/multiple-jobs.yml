@@ -1,0 +1,54 @@
+name: Multiple Jobs LAB
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
+jobs:
+    #Firs job:build
+    build:
+        name: Build Application
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout Code
+                uses: actions/checkout@v3
+            
+                
+            -   name: Build Step
+                run: |
+                    echo "🏗️ Building the application..."
+                    echo "Build completed successfully!"
+
+#Second job:test
+    test:
+        name: Test Application
+        needs: build #dependency so depends on build job
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Build Step
+                run: |
+                    echo "🏗️ Testing the application..."
+                    echo "Test completed successfully!"
+#Third job:deploy
+    deploy:
+        name: Deploy Application
+        needs: [build,test] # depends on both build and test job
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Build Step
+                run: |
+                    echo "🚀 Deploying the application..."
+                    echo "Deploy completed successfully!"
+
+#Fourth job:release
+jobs:
+  notify:
+    name: Send Notification
+    needs: deploy # depends on deploy job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        run: |
+          echo "📧 Sending deployment notification..."
+          echo "Notification sent!"
+

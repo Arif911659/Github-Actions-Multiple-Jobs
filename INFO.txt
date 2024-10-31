@@ -1,0 +1,165 @@
+Github Actions Multiple Jobs
+
+Multiple Jobs with Dependencies
+
+Overview
+Learn how to create GitHub Actions workflows with multiple jobs that depend on each other. This lab simulates a basic CI/CD pipeline with build, test, and deploy stages.
+
+Lab Structure
+your-repository/
+└── .github/
+    └── workflows/
+        └── multiple-jobs.yml
+Implementation
+Create Workflow File
+Create .github/workflows/multiple-jobs.yml:
+
+name: Multiple Jobs Lab
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # First job: Build
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build step
+        run: |
+          echo "🏗️ Building the application..."
+          echo "Build completed successfully!"
+  
+  # Second job: Test
+  test:
+    name: Run Tests
+    needs: build  # Depends on build job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        run: |
+          echo "🧪 Running tests..."
+          echo "All tests passed!"
+  
+  # Third job: Deploy
+  deploy:
+    name: Deploy Application
+    needs: [build, test]  # Depends on both build and test jobs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          echo "🚀 Deploying application..."
+          echo "Deployment successful!"
+
+  # Fourth job: Notify
+  notify:
+    name: Send Notification
+    needs: deploy  # Depends on deploy job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification
+        run: |
+          echo "📧 Sending deployment notification..."
+          echo "Notification sent!"
+Job Dependencies Diagram
+build → test → deploy → notify
+Step-by-Step Instructions
+Create Workflow Directory
+mkdir -p .github/workflows
+Create Workflow File
+Create the workflow file
+Copy the YAML content
+Commit and push
+Watch the Workflow
+Go to GitHub repository
+Click "Actions" tab
+Watch jobs execute in sequence
+Job Details
+1. Build Job
+First job to run
+No dependencies
+Simulates building application
+2. Test Job
+Runs after build completes
+Depends on build job
+Simulates running tests
+3. Deploy Job
+Runs after build and test complete
+Depends on both previous jobs
+Simulates deployment
+4. Notify Job
+Runs last
+Depends on deploy job
+Simulates sending notifications
+Expected Output
+✓ Build Application
+  └── 🏗️ Building the application...
+  └── Build completed successfully!
+
+✓ Run Tests
+  └── 🧪 Running tests...
+  └── All tests passed!
+
+✓ Deploy Application
+  └── 🚀 Deploying application...
+  └── Deployment successful!
+
+✓ Send Notification
+  └── 📧 Sending deployment notification...
+  └── Notification sent!
+Practice Exercises
+Add Success/Failure Messages
+- name: Build status
+  if: success()
+  run: echo "✅ Build succeeded!"
+Add Job Conditions
+deploy:
+  if: github.ref == 'refs/heads/main'
+  needs: [build, test]
+  runs-on: ubuntu-latest
+Add Environment Variables
+jobs:
+  build:
+    env:
+      BUILD_VERSION: 1.0.0
+    steps:
+      - run: echo "Building version $BUILD_VERSION"
+Troubleshooting
+Common Issues
+Job Dependencies
+
+Check job names match exactly
+Verify 'needs' syntax
+Check for circular dependencies
+Job Failures
+
+Check each job's logs
+Verify required resources
+Check environment variables
+Workflow Triggers
+
+Verify branch name
+Check event type
+Review workflow syntax
+Quick Fixes
+# Fix job dependency
+jobs:
+  test:
+    needs: build  # Must match job name exactly
+
+# Add error handling
+steps:
+  - name: Handle errors
+    if: failure()
+    run: echo "Job failed!"
+Tips
+Use descriptive job names
+Keep jobs focused and simple
+Add meaningful status messages
+Use emojis for visual clarity
+Consider adding timeouts
